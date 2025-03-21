@@ -1,0 +1,132 @@
+<?php
+
+
+namespace App\Http\Controllers\CRUD;
+
+use App\FilesController;
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\CRUD\Traits\IndexableCrud;
+use App\Http\Controllers\CRUD\Traits\LanguageableCrud;
+use App\Http\Controllers\CRUD\Traits\ValidateModel;
+use UntitledDevelopers\KockatoosAdminCore\Http\Services\ImageService;
+use App\Models\BaseModel;
+use App\Models\Blob;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
+abstract class  CrudController extends Controller
+{
+    use IndexableCrud, LanguageableCrud, ValidateModel;
+
+    protected string $table;
+    protected string $filesDirectory = '';
+    protected string $modelClass = BaseModel::class;
+
+    /**
+     * @var array
+     */
+    protected array $selectColumns = [];
+
+    public function store(Request $request): JsonResponse
+    {
+        $model = new $this->modelClass;
+        $model->setTable($this->table);
+        return response()->json($this->getModel($this->saveModel($request, $model, true)->id));
+    }
+
+    public function update(Request $request, $id): JsonResponse
+    {
+        return response()->json($this->getModel($this->saveModel($request, $this->findOrFailModel($id), false)->id));
+    }
+
+    public function destroy(Request $request, $id): JsonResponse
+    {
+        $model = $this->getModel($id);
+
+        if ($this->safeDelete) {
+            $model->deleted_at = now();
+            $model->save();
+        } else {
+            $model->delete();
+        }
+        return response()->json(['message' => 'OK']);
+    }
+
+
+    protected abstract function saveModel(Request $request, BaseModel $model, bool $isNew): BaseModel;
+
+    protected function initSaveModel(Request $request, BaseModel $model): mixed
+    {
+        $data = json_decode($request['data']);
+        $model->setTable($this->table);
+//        if (trait_exists(ValidateModel::class) && $this->shouldValidate) {
+//            $this->validateModel($this->modelClass, $data, $model->id == null);
+//        }
+
+        if (method_exists($this->modelClass, 'blob') && $request->hasFile('image')) {
+            $this->updateBlob($request, $model);
+            if (isset($data->blob_id) && $data->blob_id != null) {
+                FilesController::deleteFile(Blob::find($data->blob_id)->name, $this->filesDirectory);
+            }
+        }
+        return $data;
+    }
+
+    protected function findOrFailModel($id): BaseModel|Collection|\Illuminate\Database\Eloquent\Builder|array|null
+    {
+        $model = BaseModel::query()->setModel(new $this->modelClass)->from($this->table)->where('id', $id)->first();
+        if ($model == null)
+            abort(404);
+        return $model;
+    }
+
+    protected function getModel(int $id): \Illuminate\Database\Eloquent\Builder|Model
+    {
+        return $this->builder()->where($this->table . '.id', $id)->first()->setTable($this->table);
+    }
+
+    protected function updateBlob(Request $request, Model $model, string $column = 'blob_id', string $requestFileName = 'image')
+    {
+        $blob = new Blob();
+        try {
+            $file = ImageService::optimizeImage($request->file($requestFileName)->getRealPath(), null);
+            $oldSize = $request->file($requestFileName)->getSize();
+            $uploadedFile = new UploadedFile($file, $request->file($requestFileName)->getClientOriginalName(), $request->file($requestFileName)->getClientMimeType());
+            if ($oldSize - $uploadedFile->getSize() < 0) {
+                $newFile = $request->file($requestFileName)->getRealPath() . '.optimized';
+                ImageService::optimizeImage($request->file($requestFileName)->getRealPath(), $newFile);
+                $uploadedFile = new UploadedFile($newFile, $request->file($requestFileName)->getClientOriginalName(), $request->file($requestFileName)->getClientMimeType());
+                if ($oldSize - $uploadedFile->getSize() < 0) {
+                    //Use original file
+                    $uploadedFile = $request->file($requestFileName);
+                }
+            }
+        } catch (\ImagickException $e) {
+            $uploadedFile = $request->file($requestFileName);
+            Log::error($e);
+        }
+
+        $blob->url = FilesController::uploadFile($uploadedFile, $this->filesDirectory);
+        $blob->type = $request->file($requestFileName)->getType();
+        $blob->ext = $request->file($requestFileName)->getExtension();
+        $blob->size = $request->file($requestFileName)->getSize();
+        $blob->directory = $this->filesDirectory;
+        $str = explode('/', $blob->url);
+        $oldImageName = $str[count($str) - 1];
+        $blob->name = $oldImageName;
+        $blob->save();
+        //in case of saving project's gallery
+        //TODO Changed this, verify later...
+        if ($requestFileName != "gallery") {
+            $model->$column = $blob->id;
+
+        }
+        return $blob;
+    }
+}
