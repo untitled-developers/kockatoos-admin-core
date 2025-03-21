@@ -36,7 +36,7 @@ class ImageService
         if (function_exists('imagewebp')) {
             switch ($file_type) {
                 case '1': //IMAGETYPE_GIF
-                    $image = imagecreatefromgif($pathToImage);
+                    $image = self::processGifForWebConversion($pathToImage);
                     break;
                 case '2': //IMAGETYPE_JPEG
                     $image = imagecreatefromjpeg($pathToImage);
@@ -99,4 +99,22 @@ class ImageService
         return $webpFile;
     }
 
+    private static function processGifForWebConversion($pathToImage)
+    {
+        $image = imagecreatefromgif($pathToImage);
+        // Convert palette image to true color for WebP compatibility
+        $true_color_image = imagecreatetruecolor(imagesx($image), imagesy($image));
+        // Preserve transparency
+        imagealphablending($true_color_image, false);
+        imagesavealpha($true_color_image, true);
+        $transparent = imagecolorallocatealpha($true_color_image, 255, 255, 255, 127);
+        imagefilledrectangle($true_color_image, 0, 0, imagesx($image), imagesy($image), $transparent);
+        // Copy the palette image to the true color image
+        imagecopy($true_color_image, $image, 0, 0, 0, 0, imagesx($image), imagesy($image));
+        imagedestroy($image);
+        return $true_color_image;
+
+    }
+
 }
+

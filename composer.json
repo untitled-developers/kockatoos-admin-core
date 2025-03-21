@@ -17,12 +17,12 @@
     ],
     "require": {
         "php": "^8.2",
+        "ext-exif": "*",
+        "ext-gd": "*",
         "ext-imagick": "*",
         "illuminate/contracts": "^10.0||^11.0||^12.0",
         "spatie/laravel-image-optimizer": "^1.8",
-        "spatie/laravel-package-tools": "^1.16",
-        "ext-exif": "*",
-        "ext-gd": "*"
+        "spatie/laravel-package-tools": "^1.16"
     },
     "require-dev": {
         "laravel/pint": "^1.14",

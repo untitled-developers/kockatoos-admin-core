@@ -98,6 +98,9 @@ it('converts gif image to webp', function () {
         $this->markTestSkipped('GD library does not support GIF.');
     }
 
+    // Make sure the images directory exists
+    Storage::disk('local')->makeDirectory('images');
+
     // Create a GIF file - since FileFactory doesn't support GIF directly
     $gifPath = Storage::disk('local')->path('images/test.gif');
 
@@ -106,11 +109,19 @@ it('converts gif image to webp', function () {
     $background = imagecolorallocate($image, 255, 255, 255);
     $text_color = imagecolorallocate($image, 0, 0, 255);
     imagestring($image, 5, 20, 40, 'Test GIF', $text_color);
+
+    // Make sure the directory exists
+    $imageDir = dirname($gifPath);
+    if (!file_exists($imageDir)) {
+        mkdir($imageDir, 0777, true);
+    }
+
     imagegif($image, $gifPath);
     imagedestroy($image);
 
-    // Check file exists
+    // Check file exists and has size greater than 0
     expect(file_exists($gifPath))->toBeTrue();
+    expect(filesize($gifPath))->toBeGreaterThan(0);
 
     // Execute the conversion
     $webpPath = ImageService::webpConvert2($gifPath);
@@ -141,11 +152,12 @@ it('returns the path when output file already exists', function () {
 // Test with invalid image type
 it('returns false for unsupported image types', function () {
     // Create a text file pretending to be an image
-    $textPath = Storage::disk('local')->path('images/fake-image.txt');
-    file_put_contents($textPath, 'This is not an image');
+    $textPath = 'images/fake-image.txt';
+    Storage::disk('local')->put($textPath, 'This is not an image');
+    $fullPath = Storage::disk('local')->path($textPath);
 
     // Execute conversion - should return false
-    $result = ImageService::webpConvert2($textPath);
+    $result = ImageService::webpConvert2($fullPath);
 
     // Assert false is returned
     expect($result)->toBeFalse();

@@ -4,6 +4,7 @@ namespace UntitledDevelopers\KockatoosAdminCore\Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
+use Spatie\LaravelImageOptimizer\ImageOptimizerServiceProvider;
 use UntitledDevelopers\KockatoosAdminCore\CoreServiceProvider;
 
 class TestCase extends Orchestra
@@ -21,6 +22,7 @@ class TestCase extends Orchestra
     {
         return [
             CoreServiceProvider::class,
+            ImageOptimizerServiceProvider::class,
         ];
     }
 
