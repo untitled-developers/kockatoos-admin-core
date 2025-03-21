@@ -4,9 +4,12 @@ namespace UntitledDevelopers\KockatoosAdminCore;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use UntitledDevelopers\KockatoosAdminCore\Http\Services\FileService;
 
 class CoreServiceProvider extends PackageServiceProvider
 {
+
+
     public function configurePackage(Package $package): void
     {
         /*
@@ -21,8 +24,17 @@ class CoreServiceProvider extends PackageServiceProvider
 //            ->hasMigration('create_migration_table_name_table')
 //            ->hasCommand(SkeletonCommand::class);
 
-        $this->publishes([
-            __DIR__.'/../resources/stubs/FilesController.php.stub' => app_path('Http/Controllers/FilesController.php'),
-        ], 'skeleton-files-controller');
+//        $this->publishes([
+//            __DIR__.'/../resources/stubs/FilesController.php.stub' => app_path('Http/Controllers/FilesController.php'),
+//        ], 'skeleton-files-controller');
+    }
+
+    public function packageRegistered(): void
+    {
+        $this->app->singleton(FileService::class, function ($app) {
+            return new FileService(
+                'public'
+            );
+        });
     }
 }

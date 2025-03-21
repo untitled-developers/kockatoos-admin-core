@@ -36,7 +36,7 @@ class ImageService
         if (function_exists('imagewebp')) {
             switch ($file_type) {
                 case '1': //IMAGETYPE_GIF
-                    $image = self::processGifForWebConversion($pathToImage);
+                    $image = self::processGifForWebpConversion($pathToImage);
                     break;
                 case '2': //IMAGETYPE_JPEG
                     $image = imagecreatefromjpeg($pathToImage);
@@ -99,7 +99,7 @@ class ImageService
         return $webpFile;
     }
 
-    private static function processGifForWebConversion($pathToImage)
+    protected static function processGifForWebpConversion($pathToImage)
     {
         $image = imagecreatefromgif($pathToImage);
         // Convert palette image to true color for WebP compatibility

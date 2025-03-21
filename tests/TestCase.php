@@ -6,15 +6,18 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Spatie\LaravelImageOptimizer\ImageOptimizerServiceProvider;
 use UntitledDevelopers\KockatoosAdminCore\CoreServiceProvider;
+use UntitledDevelopers\KockatoosAdminCore\Http\Services\FileService;
 
 class TestCase extends Orchestra
 {
+    public FileService $fileService;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'UntitledDevelopers\\KockatoosAdminCore\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn(string $modelName) => 'UntitledDevelopers\\KockatoosAdminCore\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
         );
     }
 
