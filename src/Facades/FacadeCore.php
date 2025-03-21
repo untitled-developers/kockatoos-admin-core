@@ -8,7 +8,7 @@ use UntitledDevelopers\KockatoosAdminCore\Core;
 /**
  * @see \UntitledDevelopers\KockatoosAdminCore\Core
  */
-class Skeleton extends Facade
+class FacadeCore extends Facade
 {
     protected static function getFacadeAccessor(): string
     {

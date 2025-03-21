@@ -63,10 +63,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "untitled-developers\\KockatoosAdminCore\\CoreServiceProvider"
+                "UntitledDevelopers\\KockatoosAdminCore\\CoreServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
+                "FacadeCore": "UntitledDevelopers\\KockatoosAdminCore\\Facades\\FacadeCore"
             }
         }
     },
