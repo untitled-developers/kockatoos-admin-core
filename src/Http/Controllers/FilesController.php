@@ -5,8 +5,6 @@ namespace UntitledDevelopers\KockatoosAdminCore\Http\Controllers;
 
 
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
-use Ramsey\Uuid\Uuid;
 use UntitledDevelopers\KockatoosAdminCore\Http\Services\FileService;
 
 class FilesController

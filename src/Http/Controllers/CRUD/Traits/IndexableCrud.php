@@ -1,10 +1,10 @@
 <?php
 
 
-namespace App\Http\Controllers\CRUD\Traits;
+namespace UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\Traits;
 
-use App\Http\Controllers\CRUD\SearchableField;
-use App\Http\Controllers\CRUD\SearchTypes;
+use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\SearchableField;
+use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\SearchTypes;
 use App\Models\BaseModel;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;

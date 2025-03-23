@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\CRUD\Traits;
+namespace UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\Traits;
 
 use App\Models\Language;
 use DB;
@@ -14,7 +14,7 @@ trait LanguageableCrud
 
     public function getLanguageTable(): string
     {
-        return LanguageableCrud . phpStr::snake(class_basename($this->modelClass)) . $this->languageTablePrefix;
+        return Str::snake(class_basename($this->modelClass)) . $this->languageTablePrefix;
     }
 
     /**

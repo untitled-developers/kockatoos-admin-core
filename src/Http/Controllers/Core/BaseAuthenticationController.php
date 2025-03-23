@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Core;
+namespace UntitledDevelopers\KockatoosAdminCore\Http\Controllers\Core;
 
-use App\Http\Controllers\Controller;
+use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\Controller;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;

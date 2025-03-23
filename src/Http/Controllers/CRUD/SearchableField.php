@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Http\Controllers\CRUD;
+namespace UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD;
 
 
 use JetBrains\PhpStorm\Pure;

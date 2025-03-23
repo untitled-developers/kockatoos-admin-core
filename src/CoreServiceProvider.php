@@ -18,7 +18,8 @@ class CoreServiceProvider extends PackageServiceProvider
          * More info: https://github.com/spatie/laravel-package-tools
          */
         $package
-            ->name('kockatoos-admin-core');
+            ->name('kockatoos-admin-core')
+            ->hasMigration('create_blobs_table');
 //            ->hasConfigFile()
 //            ->hasViews()
 //            ->hasMigration('create_migration_table_name_table')
@@ -38,3 +39,6 @@ class CoreServiceProvider extends PackageServiceProvider
         });
     }
 }
+
+// To publish migrations
+//php artisan vendor:publish --tag=your-package-name-migrations

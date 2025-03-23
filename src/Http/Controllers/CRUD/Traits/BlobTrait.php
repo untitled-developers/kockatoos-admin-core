@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\CRUD\Traits;
+namespace UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\Traits;
 
-use App\FilesController;
 use App\Models\Blob;
 use Illuminate\Http\Request;
+use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\FilesController;
 
 trait BlobTrait
 {

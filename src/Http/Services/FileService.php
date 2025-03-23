@@ -50,12 +50,12 @@ class FileService
         return $extension;
     }
 
-    protected function generateUniqueFilename(string $extension): string
+    public function generateUniqueFilename(string $extension): string
     {
         return Uuid::uuid1() . '.' . $extension;
     }
 
-    protected function getPathForStorage(string $directory, string $filename): string
+    public function getPathForStorage(string $directory, string $filename): string
     {
         // Ensure directory doesn't have trailing slash
         $directory = rtrim($directory, '/');

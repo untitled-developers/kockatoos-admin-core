@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\CRUD\Traits;
+namespace UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\Traits;
 
 use App\Models\BaseModel;
 use App\Models\Language;
