@@ -2,6 +2,7 @@
 
 namespace UntitledDevelopers\KockatoosAdminCore\Http\Controllers;
 
+use UntitledDevelopers\KockatoosAdminCore\Exceptions\AccountLockedException;
 use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\Core\BaseAuthenticationController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -35,7 +36,14 @@ class AuthenticationController
             ], 429);
         }
 
-        $didLogin = $this->authenticationService->login($loginData);
+        try {
+            $didLogin = $this->authenticationService->login($loginData);
+        } catch (AccountLockedException $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 401);
+        }
+
         if (!$didLogin) {
             $this->loginRateLimiter->incrementLoginAttempts($request);
             return response()->json(['message' => 'Login failed. Please check your credentials and try again.'], 401);
