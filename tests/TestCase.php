@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Spatie\LaravelImageOptimizer\ImageOptimizerServiceProvider;
 use UntitledDevelopers\KockatoosAdminCore\CoreServiceProvider;
-use UntitledDevelopers\KockatoosAdminCore\Http\Services\FileService;
+use UntitledDevelopers\KockatoosAdminCore\Services\FileService;
 
 class TestCase extends Orchestra
 {

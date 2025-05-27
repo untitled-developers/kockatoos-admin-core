@@ -2,7 +2,7 @@
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use UntitledDevelopers\KockatoosAdminCore\Http\Services\FileService;
+use UntitledDevelopers\KockatoosAdminCore\Services\FileService;
 
 beforeEach(function () {
     // Create a fake storage disk for testing

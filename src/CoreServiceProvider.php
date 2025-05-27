@@ -4,7 +4,7 @@ namespace UntitledDevelopers\KockatoosAdminCore;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use UntitledDevelopers\KockatoosAdminCore\Http\Services\FileService;
+use UntitledDevelopers\KockatoosAdminCore\Services\FileService;
 
 class CoreServiceProvider extends PackageServiceProvider
 {
@@ -19,7 +19,8 @@ class CoreServiceProvider extends PackageServiceProvider
          */
         $package
             ->name('kockatoos-admin-core')
-            ->hasMigration('create_blobs_table');
+            ->hasMigration('create_blobs_table')
+            ->hasRoutes('api');
 //            ->hasConfigFile()
 //            ->hasViews()
 //            ->hasMigration('create_migration_table_name_table')

@@ -7,83 +7,46 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use UntitledDevelopers\KockatoosAdminCore\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use UntitledDevelopers\KockatoosAdminCore\Http\Requests\LoginRequest;
+use UntitledDevelopers\KockatoosAdminCore\Services\AuthenticationService;
+use UntitledDevelopers\KockatoosAdminCore\Services\LoginRateLimiter;
 use function response;
 
-class AuthenticationController extends BaseAuthenticationController
+class AuthenticationController
 {
-    /**
-     */
-    public function login(Request $request)
+    protected LoginRateLimiter $loginRateLimiter;
+    protected AuthenticationService $authenticationService;
+
+
+    public function __construct(LoginRateLimiter $loginRateLimiter, AuthenticationService $authenticationService)
     {
-        $data = $request->validate([
-            $this->username() => 'required|string',
-            'password' => 'required|string',
-        ]);
+        $this->loginRateLimiter = $loginRateLimiter;
+        $this->authenticationService = $authenticationService;
+    }
 
+    public function login(LoginRequest $request)
+    {
+        $loginData = $request->validated();
 
-        if (method_exists($this, 'hasTooManyLoginAttempts') &&
-            $this->hasTooManyLoginAttempts($request)) {
-            $this->fireLockoutEvent($request);
-            $this->sendLockoutResponse($request);
+        if ($this->loginRateLimiter->hasTooManyLoginAttempts($request)) {
+            $this->loginRateLimiter->fireLockoutEvent($request);
+            return response()->json([
+                'message' => 'Too many login attempts. Please try again in ' . $this->loginRateLimiter->getAvailableIn($request) . ' seconds.'
+            ], 429);
         }
 
-
-//        $user = User::wherePhone($data['phone'])->first();
-//        if ($user != null) {
-//            Auth::setUser($user);
-//            $user = Auth::user();
-//            $user->save();
-//            return $this->sendLoginResponse($request);
-//        }
-
-        if (Auth::guard()->attempt($data, $request->has('remember'))) {
-            $this->clearLoginAttempts($request);
-
-            $user = Auth::user();
-            $user->last_login_at = now();
-            $user->save();
-
-            if ($user->is_locked)
-                abort(401, 'Account locked, please contact our support or try again later.');
-
-            $accessToken = $user->createToken(config('app.key'))->plainTextToken;
-
-            $user = $user->toArray();
-            $user['access_token'] = $accessToken;
-            return redirect('/');
+        $didLogin = $this->authenticationService->login($loginData);
+        if (!$didLogin) {
+            $this->loginRateLimiter->incrementLoginAttempts($request);
+            return response()->json(['message' => 'Login failed. Please check your credentials and try again.'], 401);
         }
 
-        $this->incrementLoginAttempts($request);
+        $this->loginRateLimiter->clearLoginAttempts($request);
 
-        abort(401, 'Login Failed');
-
-    }
-
-    public static function getLoggedInUserModel()
-    {
-        $user = Auth::user();
-        if ($user == null)
-            abort(response(['message' => 'Unauthenticated'], 401));
-
-        $user->makeHidden([
-            'is_locked',
-            'deleted_at'
+        return response()->json([
+            'message' => 'Login successfully!',
         ]);
 
-        $user->append(['role_name', 'role_display_name']);
-
-
-        return $user;
-    }
-
-    public static function getLoggedInUser(): JsonResponse
-    {
-        return response()->json(self::getLoggedInUserModel());
-    }
-
-    public static function user()
-    {
-        return json_encode(self::getLoggedInUserModel());
     }
 
     public function logout(Request $request)
@@ -95,24 +58,15 @@ class AuthenticationController extends BaseAuthenticationController
         return response()->json(['message' => 'Logged out successfully!']);
     }
 
-    protected function sendLoginResponse(Request $request): JsonResponse
+    public function me(Request $request)
     {
-//        $request->session()->regenerate();
+        $user = Auth::user();
+        if ($user == null) {
+            abort(response(['message' => 'Unauthenticated'], 401));
+        }
 
-        $this->clearLoginAttempts($request);
-
-        $user = \UntitledDevelopers\KockatoosAdminCore\Facades\Auth::user();
-
-        if ($user->is_locked)
-            abort(response(['message' => 'Account locked, please contact our support or try again later.'], 401));
-
-        $accessToken = $user->createToken(config('app.name'))->plainTextToken;
-        $token = [
-            'access_token' => $accessToken
-        ];
-        Log::info("Authenticated login request for user #$user->id : $user->name");
-
-        return response()->json($token);
+        $user->append(['role_name', 'role_display_name']);
+        return response()->json($user);
     }
 
 

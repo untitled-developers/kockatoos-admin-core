@@ -1,10 +1,10 @@
 <?php
 
-namespace UntitledDevelopers\KockatoosAdminCore\Http\Services;
+namespace UntitledDevelopers\KockatoosAdminCore\Services;
 
 use Illuminate\Http\UploadedFile;
-use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Facades\Storage;
+use Ramsey\Uuid\Uuid;
 
 class FileService
 {

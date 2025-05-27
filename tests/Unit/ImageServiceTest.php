@@ -4,7 +4,7 @@ namespace UntitledDevelopers\KockatoosAdminCore\Tests\Unit;
 
 use Illuminate\Http\Testing\FileFactory;
 use Illuminate\Support\Facades\Storage;
-use UntitledDevelopers\KockatoosAdminCore\Http\Services\ImageService;
+use UntitledDevelopers\KockatoosAdminCore\Services\ImageService;
 
 beforeEach(function () {
     // Set up a fake storage disk for testing

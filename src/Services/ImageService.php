@@ -1,6 +1,6 @@
 <?php
 
-namespace UntitledDevelopers\KockatoosAdminCore\Http\Services;
+namespace UntitledDevelopers\KockatoosAdminCore\Services;
 
 use Imagick;
 use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
