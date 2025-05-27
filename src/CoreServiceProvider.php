@@ -21,7 +21,7 @@ class CoreServiceProvider extends PackageServiceProvider
             ->name('kockatoos-admin-core')
             ->hasMigration('create_blobs_table')
             ->hasRoutes('api')
-            ->hasConfigFile();
+            ->hasConfigFile(['login']);
 //            ->hasViews()
 //            ->hasMigration('create_migration_table_name_table')
 //            ->hasCommand(SkeletonCommand::class);
