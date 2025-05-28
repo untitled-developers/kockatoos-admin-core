@@ -2,7 +2,7 @@
 
 
 namespace UntitledDevelopers\KockatoosAdminCore\Facades;
-use App\Models\Admin;
+use UntitledDevelopers\KockatoosAdminCore\Models\Admin;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 

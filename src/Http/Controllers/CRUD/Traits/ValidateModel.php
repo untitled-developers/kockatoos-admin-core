@@ -2,8 +2,8 @@
 
 namespace UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\Traits;
 
-use App\Models\BaseModel;
-use App\Models\Language;
+use UntitledDevelopers\KockatoosAdminCore\Models\BaseModel;
+use UntitledDevelopers\KockatoosAdminCore\Models\Language;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

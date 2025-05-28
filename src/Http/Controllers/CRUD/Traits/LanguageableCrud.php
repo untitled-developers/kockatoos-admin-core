@@ -2,7 +2,7 @@
 
 namespace UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\Traits;
 
-use App\Models\Language;
+use UntitledDevelopers\KockatoosAdminCore\Models\Language;
 use DB;
 use Illuminate\Support\Str;
 

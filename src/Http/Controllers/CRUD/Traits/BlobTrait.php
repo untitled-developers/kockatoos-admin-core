@@ -2,7 +2,7 @@
 
 namespace UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\Traits;
 
-use App\Models\Blob;
+use UntitledDevelopers\KockatoosAdminCore\Models\Blob;
 use Illuminate\Http\Request;
 use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\FilesController;
 

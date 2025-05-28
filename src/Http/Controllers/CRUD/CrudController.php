@@ -4,8 +4,8 @@
 namespace UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD;
 
 
-use App\Models\BaseModel;
-use App\Models\Blob;
+use UntitledDevelopers\KockatoosAdminCore\Models\BaseModel;
+use UntitledDevelopers\KockatoosAdminCore\Models\Blob;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
