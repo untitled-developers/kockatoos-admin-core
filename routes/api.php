@@ -16,13 +16,15 @@ Route::prefix('auth')->group(function () {
 
 });
 Route::middleware(['web', 'auth:sanctum'])->group(function () {
-    Route::prefix('admins')->name('admins.')->group(function () {
-        Route::get('/formData', [AdminsController::class, 'getFormData']);
-        RoutesController::createResourcesRoutes(AdminsController::class);
-        Route::put('/{id}/toggleLocked', [AdminsController::class, 'toggleLocked']);
-    });
+    Route::prefix('api')->group(function () {
+        Route::prefix('admins')->name('admins.')->group(function () {
+            Route::get('/formData', [AdminsController::class, 'getFormData']);
+            RoutesController::createResourcesRoutes(AdminsController::class);
+            Route::put('/{id}/toggleLocked', [AdminsController::class, 'toggleLocked']);
+        });
 
-    Route::prefix('blobs')->name('blobs.')->group(function () {
-        RoutesController::createResourcesRoutes(BlobsController::class);
+        Route::prefix('blobs')->name('blobs.')->group(function () {
+            RoutesController::createResourcesRoutes(BlobsController::class);
+        });
     });
 });
