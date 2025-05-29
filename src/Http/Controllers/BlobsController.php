@@ -31,7 +31,6 @@ class BlobsController extends CrudController
     public function __construct()
     {
         $this->searchFields = [
-
             SearchableField::create('blobs.id', SearchTypes::$EXACT),
             SearchableField::create('blobs.name', SearchTypes::$CONTAINS),
             SearchableField::create('blobs.size', SearchTypes::$EXACT),
