@@ -3,6 +3,7 @@
 
 use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\AdminsController;
 use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\AuthenticationController;
+use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\BlobsController;
 use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\RoutesController;
 
 Route::post('/login', [AuthenticationController::class, 'login'])->middleware('web');
