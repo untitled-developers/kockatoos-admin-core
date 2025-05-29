@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace UntitledDevelopers\KockatoosAdminCore\Http\Controllers;
 
-use App\Http\Controllers\CRUD\CrudController;
-use App\Http\Controllers\CRUD\SearchableField;
-use App\Http\Controllers\CRUD\SearchTypes;
-use App\Models\Admin;
-use App\Models\BaseModel;
-use App\Models\Role;
+use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\CrudController;
+use UntitledDevelopers\KockatoosAdminCore\Models\Admin;
+use UntitledDevelopers\KockatoosAdminCore\Models\BaseModel;
+use UntitledDevelopers\KockatoosAdminCore\Utils\SearchableField;
+use UntitledDevelopers\KockatoosAdminCore\Utils\SearchTypes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

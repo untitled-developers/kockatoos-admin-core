@@ -3,20 +3,18 @@
 
 namespace UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD;
 
-
-use UntitledDevelopers\KockatoosAdminCore\Models\BaseModel;
-use UntitledDevelopers\KockatoosAdminCore\Models\Blob;
+use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\Controller;
+use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\Traits\IndexableCrud;
+use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\Traits\LanguageableCrud;
+use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\Traits\ValidateModel;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Log;
-use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\Controller;
-use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\Traits\IndexableCrud;
-use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\Traits\LanguageableCrud;
-use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\Traits\ValidateModel;
 use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\FilesController;
+use UntitledDevelopers\KockatoosAdminCore\Models\BaseModel;
+use UntitledDevelopers\KockatoosAdminCore\Models\Blob;
 use UntitledDevelopers\KockatoosAdminCore\Services\ImageService;
 
 abstract class  CrudController extends Controller
@@ -64,9 +62,9 @@ abstract class  CrudController extends Controller
     {
         $data = json_decode($request['data']);
         $model->setTable($this->table);
-//        if (trait_exists(ValidateModel::class) && $this->shouldValidate) {
-//            $this->validateModel($this->modelClass, $data, $model->id == null);
-//        }
+        if (trait_exists(ValidateModel::class) && $this->shouldValidate) {
+            $this->validateModel($this->modelClass, $data, $model->id == null);
+        }
 
         if (method_exists($this->modelClass, 'blob') && $request->hasFile('image')) {
             $this->updateBlob($request, $model);
@@ -90,28 +88,39 @@ abstract class  CrudController extends Controller
         return $this->builder()->where($this->table . '.id', $id)->first()->setTable($this->table);
     }
 
-    protected function updateBlob(Request $request, Model $model, string $column = 'blob_id', string $requestFileName = 'image')
+    protected function updateBlob(Request $request, Model $model, string $column = 'blob_id', string $requestFileName = 'image', bool $isImage = true, bool $keepName = false)
     {
         $blob = new Blob();
-        try {
-            $file = ImageService::optimizeImage($request->file($requestFileName)->getRealPath(), null);
-            $oldSize = $request->file($requestFileName)->getSize();
-            $uploadedFile = new UploadedFile($file, $request->file($requestFileName)->getClientOriginalName(), $request->file($requestFileName)->getClientMimeType());
-            if ($oldSize - $uploadedFile->getSize() < 0) {
-                $newFile = $request->file($requestFileName)->getRealPath() . '.optimized';
-                ImageService::optimizeImage($request->file($requestFileName)->getRealPath(), $newFile);
-                $uploadedFile = new UploadedFile($newFile, $request->file($requestFileName)->getClientOriginalName(), $request->file($requestFileName)->getClientMimeType());
+        // TODO needs testing
+        if ($isImage) {
+            try {
+                $file = ImageService::optimizeImage($request->file($requestFileName)->getRealPath(), null);
+                $oldSize = $request->file($requestFileName)->getSize();
+                $uploadedFile = new UploadedFile($file, $request->file($requestFileName)->getClientOriginalName(), $request->file($requestFileName)->getClientMimeType());
                 if ($oldSize - $uploadedFile->getSize() < 0) {
-                    //Use original file
-                    $uploadedFile = $request->file($requestFileName);
+                    $newFile = $request->file($requestFileName)->getRealPath() . '.optimized';
+                    ImageService::optimizeImage($request->file($requestFileName)->getRealPath(), $newFile);
+                    $uploadedFile = new UploadedFile($newFile, $request->file($requestFileName)->getClientOriginalName(), $request->file($requestFileName)->getClientMimeType());
+                    if ($oldSize - $uploadedFile->getSize() < 0) {
+                        //Use original file
+                        $uploadedFile = $request->file($requestFileName);
+                    }
                 }
-            }
-        } catch (\ImagickException $e) {
-            $uploadedFile = $request->file($requestFileName);
-            Log::error($e);
-        }
+            } catch (\ImagickException $e) {
+                $uploadedFile = $request->file($requestFileName);
+                \Log::error($e);
 
-        $blob->url = FilesController::uploadFile($uploadedFile, $this->filesDirectory);
+            }
+            $blob->url = FilesController::uploadFile($uploadedFile, $this->filesDirectory);
+        } else {
+            if ($keepName) {
+                [$url, $name] = FilesController::uploadFileKeepName($request->file($requestFileName), $this->filesDirectory);
+                $blob->url = $url;
+                $blob->name = $name;
+            } else {
+                $blob->url = FilesController::uploadFile($request->file($requestFileName), $this->filesDirectory);
+            }
+        }
         $blob->type = $request->file($requestFileName)->getType();
         $blob->ext = $request->file($requestFileName)->getExtension();
         $blob->size = $request->file($requestFileName)->getSize();
@@ -121,11 +130,13 @@ abstract class  CrudController extends Controller
         $blob->name = $oldImageName;
         $blob->save();
         //in case of saving project's gallery
-        //TODO Changed this, verify later...
-        if ($requestFileName != "gallery") {
+        if ($requestFileName == "gallery") {
+            return $blob;
+        } else {
             $model->$column = $blob->id;
-
         }
         return $blob;
     }
+
+
 }

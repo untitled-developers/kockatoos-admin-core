@@ -3,8 +3,8 @@
 
 namespace UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\Traits;
 
-use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\SearchableField;
-use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\SearchTypes;
+use UntitledDevelopers\KockatoosAdminCore\Utils\SearchableField;
+use UntitledDevelopers\KockatoosAdminCore\Utils\SearchTypes;
 use UntitledDevelopers\KockatoosAdminCore\Models\BaseModel;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
