@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use JetBrains\PhpStorm\Pure;
+use UntitledDevelopers\KockatoosAdminCore\Models\Role;
 
 class AdminsController extends CrudController
 {
