@@ -3,10 +3,10 @@
 namespace UntitledDevelopers\KockatoosAdminCore\Http\Controllers;
 
 use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\CrudController;
+use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\SearchableField;
+use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\CRUD\SearchTypes;
 use UntitledDevelopers\KockatoosAdminCore\Models\Admin;
 use UntitledDevelopers\KockatoosAdminCore\Models\BaseModel;
-use UntitledDevelopers\KockatoosAdminCore\Utils\SearchableField;
-use UntitledDevelopers\KockatoosAdminCore\Utils\SearchTypes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
