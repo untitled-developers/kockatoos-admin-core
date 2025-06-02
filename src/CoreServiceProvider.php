@@ -19,10 +19,8 @@ class CoreServiceProvider extends PackageServiceProvider
          */
         $package
             ->name('kockatoos-admin-core')
-            ->hasMigration('create_blobs_table')
             ->hasRoutes('api')
             ->hasConfigFile(['login']);
-
             $this->publishes([
                 __DIR__ . '/../database/migrations/' => database_path('migrations'),
             ], 'kockatoos-admin-core-migrations');
