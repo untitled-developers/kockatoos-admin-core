@@ -6,17 +6,14 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAdminsTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('admins', function (Blueprint $table) {
-            $table->engine = 'InnoDB';
             $table->id();
             $table->string('name')->nullable();
             $table->string('phone')->nullable();
@@ -24,34 +21,18 @@ class CreateAdminsTable extends Migration
             $table->string('password')->nullable();
             $table->boolean('is_locked')->default(false);
             $table->timestamp('last_login_at')->nullable();
-            $table->foreignIdFor(Role::class);
             $table->rememberToken();
             $table->softDeletes();
             $table->timestamps();
         });
 
-        Admin::query()->create([
-            'name'           => 'Hussein Al Mawla',
-            'username'       => 'hmawla',
-            'role_id'        => Role::query()->where('name', 'super_admin')->first()->id,
-            'password'       => bcrypt('secretpass')
-        ]);
-
-        Admin::query()->create([
-            'name'           => 'Mohammad Dekmak',
-            'username'       => 'mdekmak',
-            'role_id'        => Role::query()->where('name', 'super_admin')->first()->id,
-            'password'       => bcrypt('secretpass')
-        ]);
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('admins');
     }
-}
+};
