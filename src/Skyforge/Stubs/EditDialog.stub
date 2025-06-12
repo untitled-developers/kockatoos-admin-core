@@ -1,0 +1,88 @@
+<template>
+    <BaseEditDialog
+        form-id="%%SINGULAR_SMALL_NAME%%-form"
+        :record="record"
+        record-type="%%SINGULAR_CAPITAL_NAME%%"
+        width="700px"
+        :request-body-mapper="requestBodyMapper"
+        :record-mapper="recordMapper"
+        endpoint="api/%%PLURAL_SMALL_NAME%%"
+        v-model:form="form"
+        v-model:form-schema="formSchema"
+        @submit="emit('submit')"
+        @next-record="emit('next-record', record)"
+        @previous-record="emit('previous-record', record)"
+        @close="emit('close')"
+        ref="dialog"
+    >
+        <template #content="{getErrors, handleSubmit, didSubmit}">
+            <form id="%%SINGULAR_SMALL_NAME%%-form" @submit.prevent="handleSubmit" class="flex flex-col gap-y-4">
+                <div class="grid grid-cols-12 gap-y-4 gap-x-2">
+                    %%FORM_FIELDS%%
+                </div>
+            </form>
+        </template>
+    </BaseEditDialog>
+</template>
+
+<script setup>
+import BaseEditDialog from "kockatoos-admin-ui/components/BaseEditDialog.vue";
+import BaseInputContainer from "kockatoos-admin-ui/components/BaseInputContainer.vue";
+%%DIALOG_IMPORTS%%
+import {%%PRIMEVUE_DIALOG_IMPORTS%%} from "primevue";
+import { ref } from "vue";
+import * as zod from "zod";
+import useCreateFormSchema from "kockatoos-admin-ui/composables/useCreateFormSchema.js";
+import useEditDialog from "kockatoos-admin-ui/composables/useEditDialog.js";
+
+const props = defineProps({
+    record: Object,
+    formData: {
+        type: Object,
+        default: () => ({})
+    }
+});
+
+const emit = defineEmits(['close', 'submit', 'next-record', 'previous-record']);
+const dialog = ref(null);
+const { startDialogLoading, stopDialogLoading } = useEditDialog(dialog);
+const { createFormSchema } = useCreateFormSchema({ props });
+
+const form = ref({
+    // Base fields
+    %%SINGULAR_SMALL_NAME%%_id: null,
+    // Add fields here
+});
+
+const formSchema = createFormSchema(zod.object({
+    // Add validation rules here
+}));
+
+function requestBodyMapper(data) {
+    let newData = { ...data };
+    return newData;
+}
+
+async function recordMapper(data) {
+    let newData = { ...data };
+
+    try {
+        startDialogLoading({
+            blockUI: true,
+            message: 'Fetching %%SINGULAR_SMALL_NAME%% information...'
+        });
+
+        if (props.record?.id) {
+            const response = await window.axios.get(`api/%%PLURAL_SMALL_NAME%%/${props.record.id}`);
+            newData = response.data;
+        }
+
+        return newData;
+    } catch (error) {
+        console.error(error);
+        return newData;
+    } finally {
+        stopDialogLoading();
+    }
+}
+</script>

@@ -1,0 +1,50 @@
+<template>
+    <BasePageContent>
+        <BaseCrudTable
+            :edit-dialog="The%%SINGULAR_CAPITAL_NAME%%Dialog"
+            endpoint="api/%%PLURAL_SMALL_NAME%%"
+            ref="crudTable">
+            <template #columns>
+                <Column field="id" header="ID" :sortable="true"></Column>
+                %%COLUMN_TEMPLATES%%
+            </template>
+        </BaseCrudTable>
+    </BasePageContent>
+</template>
+
+<script setup>
+import BaseTableToggleSelect from "kockatoos-admin-ui/components/BaseTableToggleSelect.vue";
+import BaseCrudTable from "kockatoos-admin-ui/components/BaseCrudTable.vue";
+import BasePageContent from "kockatoos-admin-ui/components/BasePageContent.vue";
+import Column from "primevue/column";
+import {onMounted, ref} from "vue";
+import useCrudTable from "kockatoos-admin-ui/composables/useCrudTable.js";
+import useAlerts from "kockatoos-admin-ui/composables/useAlerts.js";
+import The%%SINGULAR_CAPITAL_NAME%%Dialog from "@/js/app/pages/%%PLURAL_CAPITAL_NAME%%/dialogs/The%%SINGULAR_CAPITAL_NAME%%Dialog.vue";
+
+const crudTable = ref();
+const {alertError} = useAlerts();
+const {
+    stopRowLoading,
+    startRowLoading
+} = useCrudTable(crudTable);
+
+// Add any additional form data that may be needed for the edit dialog
+const formData = ref({})
+
+async function fetchFormData() {
+    try {
+        const response = await window.axios.get('api/%%PLURAL_SMALL_NAME%%/formData');
+        formData.value = response.data;
+    } catch (e) {
+        alertError('Error', 'Failed to fetch form data');
+    }
+}
+
+onMounted(() => {
+    fetchFormData()
+})
+</script>
+
+<style scoped>
+</style>

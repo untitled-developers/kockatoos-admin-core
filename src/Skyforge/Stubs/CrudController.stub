@@ -1,0 +1,57 @@
+<?php
+
+namespace %%NAMESPACE%%;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\CRUD\CrudController;
+use App\Http\Controllers\CRUD\SearchableField;
+use App\Http\Controllers\CRUD\SearchTypes;
+use App\Models\BaseModel;
+use App\Models\%%MODEL_NAME%%;
+use Log;
+use Throwable;
+
+class %%CLASS_NAME%% extends CrudController
+{
+    protected string $table = '%%TABLE_NAME%%';
+    protected string $modelClass = %%MODEL_NAME%%::class;
+    protected string $filesDirectory = '%%FILES_DIRECTORY%%';
+    protected array $searchFields;
+    protected bool $safeDelete = %%SAFE_DELETE%%;
+    protected array $selectColumns = [%%COLUMNS%%];
+
+    public function __construct()
+    {
+        $this->searchFields = [
+            SearchableField::create('%%TABLE_NAME%%.id', SearchTypes::$EXACT),
+        ];
+    }
+
+
+    /**
+     * @throws Throwable
+     */
+    protected function saveModel(Request $request, BaseModel $model, bool $isNew): BaseModel
+    {
+
+        $data = $this->initSaveModel($request, $model);
+
+        /**
+         * @var %%MODEL_NAME%% $model
+         */
+
+         try {
+             DB::beginTransaction();
+                %%SAVE_COLUMNS%%
+             $model->save();
+             DB::commit();
+         } catch (Throwable $exception) {
+             DB::rollBack();
+             Log::error($exception);
+             throw $exception;
+         }
+
+        return $model;
+    }
+}

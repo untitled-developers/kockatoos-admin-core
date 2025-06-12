@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use UntitledDevelopers\KockatoosAdminCore\Models\BaseModel;
+
+class %%MODEL_NAME%% extends BaseModel
+{
+    use HasFactory;
+
+    protected $casts = [
+       %%CASTS%%
+    ];
+
+
+}
