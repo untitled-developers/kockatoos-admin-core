@@ -3,11 +3,8 @@
 namespace UntitledDevelopers\KockatoosAdminCore\Http\Controllers;
 
 use UntitledDevelopers\KockatoosAdminCore\Exceptions\AccountLockedException;
-use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\Core\BaseAuthenticationController;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use UntitledDevelopers\KockatoosAdminCore\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use UntitledDevelopers\KockatoosAdminCore\Http\Requests\LoginRequest;
 use UntitledDevelopers\KockatoosAdminCore\Services\AuthenticationService;
 use UntitledDevelopers\KockatoosAdminCore\Services\LoginRateLimiter;
