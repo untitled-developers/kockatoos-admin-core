@@ -21,7 +21,6 @@ class SkyForgeController
 
     public function index()
     {
-        TemplateVariableExtractor::generateAll();
         return view('kockatoos-admin-core::components.skyforge.skyforge', [
             'tables' => $this->skyForgeService->getAllTableNames(),
         ]);
