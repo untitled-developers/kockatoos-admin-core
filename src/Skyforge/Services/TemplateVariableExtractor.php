@@ -4,11 +4,12 @@ namespace UntitledDevelopers\KockatoosAdminCore\Skyforge\Services;
 class TemplateVariableExtractor
 {
     /**
-     * Generate classes for all stub files automatically
+     * Generate classes for all stub files automatically. This is only used in the generate-stubs.php script located in the scripts directory.
+     * To be used only in development.
      */
     public static function generateAll(): void
     {
-        $stubsPath = base_path('app/skyforge/stubs/');
+        $stubsPath = __DIR__ . '/../stubs/';
 
 
         $files = glob($stubsPath . '*');
@@ -58,7 +59,7 @@ class TemplateVariableExtractor
 
         return "<?php
 
-namespace App\\skyforge\\stubs;
+namespace UntitledDevelopers\\KockatoosAdminCore\\Skyforge\\Stubs;
 
 class {$className}
 {
