@@ -9,7 +9,7 @@ class SkyForgeService
 {
     function getAllTableNames(): array
     {
-        $tables = DB::connection()->getSchemaBuilder()->getTables();
+        $tables = DB::connection()->getSchemaBuilder()->getTables(config('database.connections.mysql.database'));
 
         return array_map(function ($table) {
             return $table['name'];
