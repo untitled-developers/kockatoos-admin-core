@@ -2,8 +2,10 @@
 
 namespace UntitledDevelopers\KockatoosAdminCore\Services;
 
+use Illuminate\Support\Facades\Hash;
 use UntitledDevelopers\KockatoosAdminCore\Exceptions\AccountLockedException;
 use UntitledDevelopers\KockatoosAdminCore\Facades\Auth;
+use UntitledDevelopers\KockatoosAdminCore\Models\Admin;
 
 class AuthenticationService
 {
@@ -23,32 +25,35 @@ class AuthenticationService
     {
         $identifierField = config('login.identifier');
 
-        //TODO test the remember me functionality
-        if (Auth::attempt([$identifierField => $loginData['identifier'], 'password' => $loginData['password']], $loginData['remember'] ?? false)) {
-            $user = Auth::user();
+        $user = Admin::where($identifierField, $loginData['identifier'])->first();
 
-            if ($user->is_locked) {
-                Auth::guard('web')->logout();
-                throw new \UntitledDevelopers\KockatoosAdminCore\Exceptions\AccountLockedException();
-            }
-            if ($this->mfaService->hasMfa($user)) {
-                $mfaCode = $loginData['mfa_code'] ?? null;
-
-                if (!$mfaCode || !$this->mfaService->verifyCode($user, $mfaCode)) {
-                    Auth::guard('web')->logout();
-                    return false;
-                }
-            }
-
-            $user->last_login_at = now();
-            $user->save();
-
-            $accessToken = $user->createToken(config('app.key'))->plainTextToken;
-            $user = $user->toArray();
-            $user['access_token'] = $accessToken;
-            return true;
+        if (!$user || !Hash::check($loginData['password'], $user->password)) {
+            return false;
         }
-        return false;
+
+        if ($user->is_locked) {
+            throw new AccountLockedException();
+        }
+
+        if ($this->mfaService->hasMfa($user)) {
+            $mfaCode = $loginData['mfa_code'] ?? null;
+
+            if (!$mfaCode || !$this->mfaService->verifyCode($user, $mfaCode)) {
+                return false;
+            }
+        }
+
+        //TODO test the remember me functionality
+        Auth::login($user, $loginData['remember'] ?? false);
+
+        $user->last_login_at = now();
+        $user->save();
+
+        $accessToken = $user->createToken(config('app.key'))->plainTextToken;
+        $user = $user->toArray();
+        $user['access_token'] = $accessToken;
+
+        return true;
     }
 
 
