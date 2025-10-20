@@ -19,6 +19,7 @@ class LoginRequest extends FormRequest
             'identifier' => 'required|string',
             'password' => 'required|string|min:6',
             'remember' => 'sometimes|boolean',
+            'mfa_code' => 'sometimes|string|size:6',
         ];
     }
 

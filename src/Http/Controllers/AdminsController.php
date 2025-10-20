@@ -26,6 +26,7 @@ class AdminsController extends CrudController
         'admins.phone',
         'admins.username',
         'admins.is_locked',
+        'admins.mfa_secret',
         'admins.created_at',
         'admins.updated_at'
     ];

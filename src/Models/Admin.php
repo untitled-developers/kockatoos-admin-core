@@ -22,7 +22,12 @@ class Admin extends Authenticatable
 
     protected $hidden = [
         'password',
-        'remember_token'
+        'remember_token',
+        'mfa_secret'
+    ];
+
+    protected $appends = [
+        'has_mfa'
     ];
 
     public function roles(): BelongsToMany
@@ -30,5 +35,8 @@ class Admin extends Authenticatable
         return $this->belongsToMany(Role::class);
     }
 
-
+    public function getHasMfaAttribute(): bool
+    {
+        return !is_null($this->mfa_secret);
+    }
 }
