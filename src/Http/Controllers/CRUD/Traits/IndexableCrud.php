@@ -33,7 +33,9 @@ trait IndexableCrud
 
         $builder = $builder->orderBy($this->table . '.id', 'desc');
         $perPage = (int)$request->input('perPage');
-        $output = $builder->paginate($perPage != 0 ? $perPage : $this->defaultPerPage);
+        $output = $perPage === -1
+            ? $builder->get()
+            : $builder->paginate($perPage != 0 ? $perPage : $this->defaultPerPage);
         return response()->json($output);
     }
 
