@@ -12,7 +12,15 @@ class FilesController
 {
     public static function uploadFile(UploadedFile $file, $directory, $extension = null): string
     {
-        $filePath = $file->storeAs('public/' . $directory, Uuid::uuid1() . '.' . ($extension ?? explode('/', $file->getMimeType())[1]));
+        $originalExt = $file->getClientOriginalExtension();
+
+        $finalExtension = $extension ?? $originalExt;
+
+        $filePath = $file->storeAs(
+            'public/' . $directory,
+            Uuid::uuid1() . '.' . $finalExtension
+        );
+
         return Storage::url($filePath);
     }
     public static function uploadFileKeepName(UploadedFile $file, $directory): array
