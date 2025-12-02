@@ -93,23 +93,29 @@ abstract class  CrudController extends Controller
         $blob = new Blob();
         // TODO needs testing
         if ($isImage) {
-            try {
-                $file = ImageService::optimizeImage($request->file($requestFileName)->getRealPath(), null);
-                $oldSize = $request->file($requestFileName)->getSize();
-                $uploadedFile = new UploadedFile($file, $request->file($requestFileName)->getClientOriginalName(), $request->file($requestFileName)->getClientMimeType());
-                if ($oldSize - $uploadedFile->getSize() < 0) {
-                    $newFile = $request->file($requestFileName)->getRealPath() . '.optimized';
-                    ImageService::optimizeImage($request->file($requestFileName)->getRealPath(), $newFile);
-                    $uploadedFile = new UploadedFile($newFile, $request->file($requestFileName)->getClientOriginalName(), $request->file($requestFileName)->getClientMimeType());
-                    if ($oldSize - $uploadedFile->getSize() < 0) {
-                        //Use original file
-                        $uploadedFile = $request->file($requestFileName);
-                    }
-                }
-            } catch (\ImagickException $e) {
+            // Check if the image is SVG
+            $mimeType = $request->file($requestFileName)->getClientMimeType();
+            if ($mimeType === 'image/svg+xml') {
                 $uploadedFile = $request->file($requestFileName);
-                \Log::error($e);
+            } else {
+                try {
+                    $file = ImageService::optimizeImage($request->file($requestFileName)->getRealPath(), null);
+                    $oldSize = $request->file($requestFileName)->getSize();
+                    $uploadedFile = new UploadedFile($file, $request->file($requestFileName)->getClientOriginalName(), $request->file($requestFileName)->getClientMimeType());
+                    if ($oldSize - $uploadedFile->getSize() < 0) {
+                        $newFile = $request->file($requestFileName)->getRealPath() . '.optimized';
+                        ImageService::optimizeImage($request->file($requestFileName)->getRealPath(), $newFile);
+                        $uploadedFile = new UploadedFile($newFile, $request->file($requestFileName)->getClientOriginalName(), $request->file($requestFileName)->getClientMimeType());
+                        if ($oldSize - $uploadedFile->getSize() < 0) {
+                            //Use original file
+                            $uploadedFile = $request->file($requestFileName);
+                        }
+                    }
+                } catch (\ImagickException $e) {
+                    $uploadedFile = $request->file($requestFileName);
+                    \Log::error($e);
 
+                }
             }
             $blob->url = FilesController::uploadFile($uploadedFile, $this->filesDirectory);
         } else {
