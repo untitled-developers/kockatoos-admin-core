@@ -4,6 +4,7 @@ namespace UntitledDevelopers\KockatoosAdminCore\Services;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 
 class FileService
@@ -27,6 +28,9 @@ class FileService
         return Storage::disk($this->disk)->url($path);
     }
 
+    /**
+     * @deprecated since 1.2.0 Use deleteByUrl() instead.
+     */
     public function deleteFile($fileName, $directory): bool
     {
         $path = $this->getPathForStorage($directory, $fileName);
@@ -37,17 +41,25 @@ class FileService
         return false;
     }
 
+    public function deleteByUrl(string $url): bool
+    {
+        $urlPath = parse_url($url, PHP_URL_PATH);
+        $basePath = parse_url(Storage::disk($this->disk)->url(''), PHP_URL_PATH);
+        $relativePath = ltrim(Str::after($urlPath, $basePath), '/');
+
+        if (Storage::disk($this->disk)->exists($relativePath)) {
+            return Storage::disk($this->disk)->delete($relativePath);
+        }
+        return false;
+    }
+
     protected function getExtensionFromMimeType(UploadedFile $file): string
     {
-        $mimeTypeParts = explode('/', $file->getMimeType());
-        $extension = end($mimeTypeParts);
-
-        // Handle special cases
-        if ($extension === 'jpeg') {
-            return 'jpg';
-        }
-
-        return $extension;
+        return match ($file->getMimeType()) {
+            'image/jpeg' => 'jpg',
+            'image/svg+xml' => 'svg',
+            default => last(explode('/', $file->getMimeType())),
+        };
     }
 
     public function generateUniqueFilename(string $extension): string
@@ -64,10 +76,6 @@ class FileService
         return $directory !== '' ? $directory . '/' . $filename : $filename;
     }
 
-    protected function getDiskPath(): string
-    {
-        return $this->disk;
-    }
 
 
 }

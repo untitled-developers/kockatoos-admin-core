@@ -69,7 +69,10 @@ abstract class  CrudController extends Controller
         if (method_exists($this->modelClass, 'blob') && $request->hasFile('image')) {
             $this->updateBlob($request, $model);
             if (isset($data->blob_id) && $data->blob_id != null) {
-                FilesController::deleteFile(Blob::find($data->blob_id)->name, $this->filesDirectory);
+                $oldBlob = Blob::find($data->blob_id);
+                if ($oldBlob) {
+                    app(\UntitledDevelopers\KockatoosAdminCore\Services\FileService::class)->deleteByUrl($oldBlob->url);
+                }
             }
         }
         return $data;
@@ -88,10 +91,10 @@ abstract class  CrudController extends Controller
         return $this->builder()->where($this->table . '.id', $id)->first()->setTable($this->table);
     }
 
+    // TODO: refactor to use BlobService::store() — currently duplicates file/image handling logic
     protected function updateBlob(Request $request, Model $model, string $column = 'blob_id', string $requestFileName = 'image', bool $isImage = true, bool $keepName = false)
     {
         $blob = new Blob();
-        // TODO needs testing
         if ($isImage) {
             // Check if the image is SVG
             $mimeType = $request->file($requestFileName)->getClientMimeType();
@@ -111,7 +114,7 @@ abstract class  CrudController extends Controller
                             $uploadedFile = $request->file($requestFileName);
                         }
                     }
-                } catch (\ImagickException $e) {
+                } catch (\Throwable $e) {
                     $uploadedFile = $request->file($requestFileName);
                     \Log::error($e);
 
@@ -127,13 +130,13 @@ abstract class  CrudController extends Controller
                 $blob->url = FilesController::uploadFile($request->file($requestFileName), $this->filesDirectory);
             }
         }
-        $blob->type = $request->file($requestFileName)->getType();
-        $blob->ext = $request->file($requestFileName)->getExtension();
+        $blob->type = $request->file($requestFileName)->getMimeType();
+        $blob->ext = $request->file($requestFileName)->getClientOriginalExtension();
         $blob->size = $request->file($requestFileName)->getSize();
         $blob->directory = $this->filesDirectory;
-        $str = explode('/', $blob->url);
-        $oldImageName = $str[count($str) - 1];
-        $blob->name = $oldImageName;
+        if (empty($blob->name)) {
+            $blob->name = basename($blob->url);
+        }
         $blob->save();
         //in case of saving project's gallery
         if ($requestFileName == "gallery") {

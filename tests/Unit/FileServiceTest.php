@@ -181,17 +181,23 @@ test('it builds correct storage paths', function () {
     }
 });
 
-test('it returns correct disk path', function () {
-    // Use reflection to access the protected method
-    $reflector = new ReflectionClass(FileService::class);
-    $method = $reflector->getMethod('getDiskPath');
-    $method->setAccessible(true);
+test('it deletes a file by url', function () {
+    $file = UploadedFile::fake()->image('test.jpg');
+    $url = $this->fileService->uploadFile($file, 'uploads');
 
-    // Test with the default public disk
-    expect($method->invoke($this->fileService))->toBe('public');
+    $filename = basename($url);
+    Storage::disk('public')->assertExists('uploads/' . $filename);
 
-    // Test with the custom disk
-    expect($method->invoke($this->customDiskService))->toBe('custom');
+    $result = $this->fileService->deleteByUrl($url);
+
+    expect($result)->toBeTrue();
+    Storage::disk('public')->assertMissing('uploads/' . $filename);
+});
+
+test('deleteByUrl returns false for non-existent file', function () {
+    $result = $this->fileService->deleteByUrl('/storage/uploads/non-existent.jpg');
+
+    expect($result)->toBeFalse();
 });
 
 

@@ -8,6 +8,9 @@ use UntitledDevelopers\KockatoosAdminCore\Http\Controllers\FilesController;
 
 trait BlobTrait
 {
+    /**
+     * @deprecated since 1.2.0 Use BlobService::store() instead.
+     */
     public function _uploadBlob(Request $request): Blob
     {
         $blob = new Blob();
@@ -20,6 +23,9 @@ trait BlobTrait
         return $blob;
     }
 
+    /**
+     * @deprecated since 1.2.0 Use BlobService::delete() instead.
+     */
     public function _deleteBlob(int $blob_id)
     {
         $blob = Blob::query()->find($blob_id);

@@ -10,6 +10,9 @@ use Ramsey\Uuid\Uuid;
 
 class FilesController
 {
+    /**
+     * @deprecated since 1.2.0 Use FileService::uploadFile() instead.
+     */
     public static function uploadFile(UploadedFile $file, $directory, $extension = null): string
     {
         $originalExt = $file->getClientOriginalExtension();
@@ -23,6 +26,9 @@ class FilesController
 
         return Storage::url($filePath);
     }
+    /**
+     * @deprecated since 1.2.0 Use FileService::uploadFile() instead.
+     */
     public static function uploadFileKeepName(UploadedFile $file, $directory): array
     {
         $name = $file->getClientOriginalName();
@@ -32,6 +38,9 @@ class FilesController
     }
 
 
+    /**
+     * @deprecated since 1.2.0 Use FileService::uploadFile() instead.
+     */
     public static function uploadFileWithName(UploadedFile $file, $directory, $extension = null): array
     {
         $name = Uuid::uuid1() . '.' . ($extension ?? explode('/', $file->getMimeType())[1]);
@@ -40,6 +49,9 @@ class FilesController
         return ['url' => $url, 'name' => $name];
     }
 
+    /**
+     * @deprecated since 1.2.0 Use FileService::deleteByUrl() instead.
+     */
     public static function deleteFile($fileName, $directory)
     {
         $imagePath = 'public/' . $directory . '/' . $fileName;

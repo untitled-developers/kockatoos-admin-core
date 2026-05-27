@@ -2,14 +2,10 @@
 
 namespace UntitledDevelopers\KockatoosAdminCore\Services;
 
-use Imagick;
 use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
 
 class ImageService
 {
-    /**
-     * @throws \ImagickException
-     */
     public static function webpConvert2($pathToImage, $compression_quality = 90): bool|string
     {
         // check if file exists
@@ -17,10 +13,10 @@ class ImageService
             return false;
         }
 
-        if (exif_imagetype($pathToImage) === false) {
+        $file_type = exif_imagetype($pathToImage);
+        if ($file_type === false) {
             return false;
         }
-        $file_type = exif_imagetype($pathToImage);
         //https://www.php.net/manual/en/function.exif-imagetype.php
         //exif_imagetype($file);
         // 1    IMAGETYPE_GIF
@@ -33,65 +29,54 @@ class ImageService
         if (file_exists($output_file)) {
             return $output_file;
         }
-        if (function_exists('imagewebp')) {
-            switch ($file_type) {
-                case '1': //IMAGETYPE_GIF
-                    $image = self::processGifForWebpConversion($pathToImage);
-                    break;
-                case '2': //IMAGETYPE_JPEG
-                    $image = imagecreatefromjpeg($pathToImage);
-                    break;
-                case '3': //IMAGETYPE_PNG
-                    $image = imagecreatefrompng($pathToImage);
-                    imagepalettetotruecolor($image);
-                    imagealphablending($image, true);
-                    imagesavealpha($image, true);
-                    break;
-                case '6': // IMAGETYPE_BMP
-                    $image = imagecreatefrombmp($pathToImage);
-                    break;
-                case '18': //IMAGETYPE_Webp
-                    $image = imagecreatefromwebp($pathToImage);
-                    break;
-                case '16': //IMAGETYPE_XBM
-                    $image = imagecreatefromxbm($pathToImage);
-                    break;
-                default:
-                    return false;
-            }
-            // Save the image
-            $result = imagewebp($image, $output_file, $compression_quality);
-            if (false === $result) {
-                return false;
-            }
-            // Free up memory
-            imagedestroy($image);
-            return $output_file;
-        } elseif (class_exists('Imagick')) {
-            $image = new Imagick();
-            $image->readImage($pathToImage);
-            if ($file_type == "3") {
-                $image->setImageFormat('webp');
-                $image->setImageCompressionQuality($compression_quality);
-                $image->setOption('webp:lossless', 'true');
-            }
-            $image->writeImage($output_file);
-            return $output_file;
+        if (!function_exists('imagewebp')) {
+            return false;
         }
-        return false;
+
+        switch ($file_type) {
+            case IMAGETYPE_GIF:
+                $image = self::processGifForWebpConversion($pathToImage);
+                break;
+            case IMAGETYPE_JPEG:
+                $image = imagecreatefromjpeg($pathToImage);
+                break;
+            case IMAGETYPE_PNG:
+                $image = imagecreatefrompng($pathToImage);
+                imagepalettetotruecolor($image);
+                imagealphablending($image, true);
+                imagesavealpha($image, true);
+                break;
+            case IMAGETYPE_BMP:
+                $image = imagecreatefrombmp($pathToImage);
+                break;
+            case IMAGETYPE_WEBP:
+                $image = imagecreatefromwebp($pathToImage);
+                break;
+            case IMAGETYPE_XBM:
+                $image = imagecreatefromxbm($pathToImage);
+                break;
+            default:
+                return false;
+        }
+
+        $result = imagewebp($image, $output_file, $compression_quality);
+        if (false === $result) {
+            return false;
+        }
+
+        imagedestroy($image);
+        return $output_file;
     }
 
     public static function optimizeImageCompression($pathToImage, $pathToOutput): void
     {
-        if ($pathToOutput)
+        if ($pathToOutput) {
             ImageOptimizer::optimize($pathToImage, $pathToOutput);
-        else
+        } else {
             ImageOptimizer::optimize($pathToImage);
+        }
     }
 
-    /**
-     * @throws \ImagickException
-     */
     public static function optimizeImage($pathToImage, $pathToOutput): bool|string
     {
         $webpFile = self::webpConvert2($pathToImage);

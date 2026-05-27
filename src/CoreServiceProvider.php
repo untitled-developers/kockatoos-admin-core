@@ -11,7 +11,9 @@ use UntitledDevelopers\KockatoosAdminCore\Components\Skyforge;
 use UntitledDevelopers\KockatoosAdminCore\Components\TableDetails;
 use UntitledDevelopers\KockatoosAdminCore\Components\TableDetailsLayout;
 use UntitledDevelopers\KockatoosAdminCore\Components\TableHeader;
+use UntitledDevelopers\KockatoosAdminCore\Services\BlobService;
 use UntitledDevelopers\KockatoosAdminCore\Services\FileService;
+use UntitledDevelopers\KockatoosAdminCore\Services\ImageService;
 
 class CoreServiceProvider extends PackageServiceProvider
 {
@@ -43,11 +45,12 @@ class CoreServiceProvider extends PackageServiceProvider
 
     public function packageRegistered(): void
     {
-        $this->app->singleton(FileService::class, function ($app) {
-            return new FileService(
-                'public'
-            );
-        });
+        $this->app->singleton(FileService::class, fn () => new FileService('public'));
+        $this->app->singleton(ImageService::class, fn () => new ImageService());
+        $this->app->singleton(BlobService::class, fn ($app) => new BlobService(
+            $app->make(FileService::class),
+            $app->make(ImageService::class),
+        ));
     }
 
     public function packageBooted(): void
