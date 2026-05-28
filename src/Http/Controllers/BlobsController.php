@@ -4,7 +4,6 @@ namespace UntitledDevelopers\KockatoosAdminCore\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use UntitledDevelopers\KockatoosAdminCore\Services\BlobService;
 
 class BlobsController extends Controller
@@ -14,7 +13,6 @@ class BlobsController extends Controller
     public function index(Request $request): JsonResponse
     {
         $paginate = $request->boolean('paginate', true);
-        $withExistence = $request->boolean('withExistence', false);
 
         $result = $this->blobService->list([
             'searchFor' => $request->input('searchFor'),
@@ -25,14 +23,6 @@ class BlobsController extends Controller
             'perPage'   => $request->input('perPage'),
             'paginate'  => $paginate,
         ]);
-
-        if ($withExistence) {
-            if ($result instanceof LengthAwarePaginator) {
-                $this->blobService->attachExistence($result->getCollection());
-            } else {
-                $this->blobService->attachExistence($result);
-            }
-        }
 
         if (!$paginate) {
             return response()->json(['data' => $result]);

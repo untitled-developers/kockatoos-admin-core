@@ -7,7 +7,6 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use UntitledDevelopers\KockatoosAdminCore\Models\Blob;
 
 class BlobService
@@ -154,48 +153,6 @@ class BlobService
         }
 
         return $builder->paginate($query['perPage'] ?? 15);
-    }
-
-    /**
-     * Annotate each blob with an `exists` attribute describing whether its
-     * backing file is present on the configured public disk.
-     *
-     * Values:
-     *  - true  → URL points at the configured disk AND the file is on disk.
-     *  - false → URL points at the configured disk AND the file is NOT on disk.
-     *  - null  → URL does NOT point at the configured disk (external host /
-     *            CDN). Existence cannot be verified without an outbound HTTP
-     *            call and is therefore not claimed either way (FR-6).
-     *
-     * Calls `Storage::files($dir)` exactly once per distinct directory among
-     * "on-disk" blobs (FR-10).
-     */
-    public function attachExistence(iterable $blobs): iterable
-    {
-        $disk = Storage::disk($this->disk);
-        $diskPrefix = parse_url($disk->url(''), PHP_URL_PATH) ?? '';
-
-        $onDiskByDir = [];
-        foreach ($blobs as $blob) {
-            $urlPath = parse_url((string) $blob->url, PHP_URL_PATH) ?? '';
-            if ($diskPrefix === '' || !Str::startsWith($urlPath, $diskPrefix)) {
-                $blob->setAttribute('exists', null);
-                continue;
-            }
-            $dir = (string) $blob->directory;
-            $onDiskByDir[$dir][] = $blob;
-        }
-
-        foreach ($onDiskByDir as $dir => $blobsInDir) {
-            $filesInDir = array_flip($disk->files($dir));
-            foreach ($blobsInDir as $blob) {
-                $urlPath = parse_url((string) $blob->url, PHP_URL_PATH) ?? '';
-                $relativePath = ltrim(Str::after($urlPath, $diskPrefix), '/');
-                $blob->setAttribute('exists', isset($filesInDir[$relativePath]));
-            }
-        }
-
-        return $blobs;
     }
 
     protected function isImage(UploadedFile $file): bool
