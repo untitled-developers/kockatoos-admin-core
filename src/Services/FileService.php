@@ -16,6 +16,32 @@ class FileService
         $this->disk = $disk;
     }
 
+    public function disk(): string
+    {
+        return $this->disk;
+    }
+
+    public function diskBaseUrl(): string
+    {
+        return parse_url(Storage::disk($this->disk)->url(''), PHP_URL_PATH) ?? '/';
+    }
+
+    public function relativePathFromUrl(string $url): ?string
+    {
+        $urlPath = parse_url($url, PHP_URL_PATH);
+        if ($urlPath === null || $urlPath === false) {
+            return null;
+        }
+
+        $basePath = $this->diskBaseUrl();
+        $basePathTrimmed = rtrim($basePath, '/');
+
+        if ($basePathTrimmed !== '' && !str_starts_with($urlPath, $basePathTrimmed)) {
+            return null;
+        }
+
+        return ltrim(Str::after($urlPath, $basePath), '/');
+    }
 
     public function uploadFile(UploadedFile $file, $directory, $extension = null): string
     {
@@ -43,9 +69,10 @@ class FileService
 
     public function deleteByUrl(string $url): bool
     {
-        $urlPath = parse_url($url, PHP_URL_PATH);
-        $basePath = parse_url(Storage::disk($this->disk)->url(''), PHP_URL_PATH);
-        $relativePath = ltrim(Str::after($urlPath, $basePath), '/');
+        $relativePath = $this->relativePathFromUrl($url);
+        if ($relativePath === null || $relativePath === '') {
+            return false;
+        }
 
         if (Storage::disk($this->disk)->exists($relativePath)) {
             return Storage::disk($this->disk)->delete($relativePath);

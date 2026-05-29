@@ -4,15 +4,34 @@ namespace UntitledDevelopers\KockatoosAdminCore\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use UntitledDevelopers\KockatoosAdminCore\Services\BlobReconciliationService;
 use UntitledDevelopers\KockatoosAdminCore\Services\BlobService;
 
 class BlobsController extends Controller
 {
-    public function __construct(protected BlobService $blobService) {}
+    public function __construct(
+        protected BlobService $blobService,
+        protected BlobReconciliationService $reconciliationService,
+    ) {}
 
     public function index(Request $request): JsonResponse
     {
+        $reconcile = $request->boolean('reconcile');
+        $withExistence = $request->boolean('withExistence');
         $paginate = $request->boolean('paginate', true);
+
+        if ($reconcile) {
+            $blobs = $this->blobService->list([
+                'searchFor' => $request->input('searchFor'),
+                'directory' => $request->input('directory'),
+                'type'      => $request->input('type'),
+                'sortBy'    => $request->input('sortBy'),
+                'sortAs'    => $request->input('sortAs'),
+                'paginate'  => false,
+            ]);
+
+            return response()->json(['data' => $this->reconciliationService->reconcile($blobs)]);
+        }
 
         $result = $this->blobService->list([
             'searchFor' => $request->input('searchFor'),
@@ -23,6 +42,21 @@ class BlobsController extends Controller
             'perPage'   => $request->input('perPage'),
             'paginate'  => $paginate,
         ]);
+
+        if ($withExistence) {
+            $snapshot = $this->reconciliationService->snapshot();
+
+            if ($paginate) {
+                $items = $this->reconciliationService->attachExistence($result->items(), $snapshot)->all();
+                $payload = $result->toArray();
+                $payload['data'] = $items;
+                return response()->json($payload);
+            }
+
+            return response()->json([
+                'data' => $this->reconciliationService->attachExistence($result, $snapshot)->all(),
+            ]);
+        }
 
         if (!$paginate) {
             return response()->json(['data' => $result]);

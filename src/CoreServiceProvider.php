@@ -11,6 +11,7 @@ use UntitledDevelopers\KockatoosAdminCore\Components\Skyforge;
 use UntitledDevelopers\KockatoosAdminCore\Components\TableDetails;
 use UntitledDevelopers\KockatoosAdminCore\Components\TableDetailsLayout;
 use UntitledDevelopers\KockatoosAdminCore\Components\TableHeader;
+use UntitledDevelopers\KockatoosAdminCore\Services\BlobReconciliationService;
 use UntitledDevelopers\KockatoosAdminCore\Services\BlobService;
 use UntitledDevelopers\KockatoosAdminCore\Services\FileService;
 use UntitledDevelopers\KockatoosAdminCore\Services\ImageService;
@@ -50,6 +51,9 @@ class CoreServiceProvider extends PackageServiceProvider
         $this->app->singleton(BlobService::class, fn ($app) => new BlobService(
             $app->make(FileService::class),
             $app->make(ImageService::class),
+        ));
+        $this->app->singleton(BlobReconciliationService::class, fn ($app) => new BlobReconciliationService(
+            $app->make(FileService::class),
         ));
     }
 
